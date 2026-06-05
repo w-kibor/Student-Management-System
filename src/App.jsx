@@ -73,9 +73,11 @@ export default function App() {
     try {
       const res = await apiFetch('/api/streams');
       const data = await res.json();
-      setStreams(data);
+      if (!res.ok) throw new Error(data.error || 'Failed to fetch class streams');
+      setStreams(Array.isArray(data) ? data : []);
     } catch (err) {
-      showToast('Error loading streams', 'danger');
+      showToast(err.message, 'danger');
+      setStreams([]);
     }
   };
 
@@ -83,9 +85,11 @@ export default function App() {
     try {
       const res = await apiFetch('/api/students');
       const data = await res.json();
-      setStudents(data);
+      if (!res.ok) throw new Error(data.error || 'Failed to fetch student list');
+      setStudents(Array.isArray(data) ? data : []);
     } catch (err) {
-      showToast('Error loading students', 'danger');
+      showToast(err.message, 'danger');
+      setStudents([]);
     }
   };
 
@@ -93,9 +97,11 @@ export default function App() {
     try {
       const res = await apiFetch('/api/subjects');
       const data = await res.json();
-      setSubjects(data);
+      if (!res.ok) throw new Error(data.error || 'Failed to fetch subjects');
+      setSubjects(Array.isArray(data) ? data : []);
     } catch (err) {
-      showToast('Error loading subjects', 'danger');
+      showToast(err.message, 'danger');
+      setSubjects([]);
     }
   };
 
@@ -103,10 +109,14 @@ export default function App() {
     try {
       const res = await apiFetch('/api/settings/grades');
       const data = await res.json();
-      setGradingScales(data);
-      setGradesConfig(data);
+      if (!res.ok) throw new Error(data.error || 'Failed to fetch grading scale');
+      const scales = Array.isArray(data) ? data : [];
+      setGradingScales(scales);
+      setGradesConfig(scales);
     } catch (err) {
-      showToast('Error loading grading configuration', 'danger');
+      showToast(err.message, 'danger');
+      setGradingScales([]);
+      setGradesConfig([]);
     }
   };
 
@@ -114,10 +124,11 @@ export default function App() {
     try {
       const res = await apiFetch('/api/settings/configs');
       const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to fetch system limits');
       setLimits(data);
       setConfigForm(data);
     } catch (err) {
-      showToast('Error loading configurations', 'danger');
+      showToast(err.message, 'danger');
     }
   };
 

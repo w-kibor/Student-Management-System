@@ -15,7 +15,7 @@ const pool = new pg.Pool({
   user: process.env.DATABASE_URL ? undefined : (process.env.DB_USER || 'postgres'),
   password: process.env.DATABASE_URL ? undefined : (process.env.DB_PASSWORD || 'password123'),
   database: process.env.DATABASE_URL ? undefined : (process.env.DB_DATABASE || 'ikonex_academy'),
-  ssl: isProduction ? { rejectUnauthorized: false } : false
+  ssl: process.env.DATABASE_URL ? { rejectUnauthorized: false } : false
 });
 
 // Helper for query execution
