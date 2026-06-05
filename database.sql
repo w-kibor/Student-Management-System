@@ -12,7 +12,7 @@ CREATE TABLE class_streams (
     id SERIAL PRIMARY KEY,
     name VARCHAR(50) UNIQUE NOT NULL, -- e.g., "Form 1 Green", "Form 2 Blue"
     grade INTEGER NOT NULL CHECK (grade BETWEEN 1 AND 4), -- 1, 2, 3, 4
-    color VARCHAR(20) NOT NULL CHECK (color IN ('Green', 'Yellow', 'Orange', 'Blue')),
+    color VARCHAR(50) NOT NULL, -- Custom colors allowed (e.g. Red, Purple)
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

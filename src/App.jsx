@@ -23,6 +23,8 @@ export default function App() {
   const [activeStudentModal, setActiveStudentModal] = useState(null); // 'create', 'edit'
   const [activeSubjectModal, setActiveSubjectModal] = useState(null); // 'create', 'edit'
   const [activeStreamModal, setActiveStreamModal] = useState(null); // 'create'
+  const [isCustomColor, setIsCustomColor] = useState(false);
+  const [customColorVal, setCustomColorVal] = useState('');
   
   // Forms States
   const [studentForm, setStudentForm] = useState({ id: '', name: '', admission_number: '', class_stream_id: '', email: '', date_of_birth: '' });
@@ -662,7 +664,7 @@ export default function App() {
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
               <h2>All School Streams</h2>
-              <button className="btn btn-primary btn-sm" onClick={() => setActiveStreamModal(true)}>➕ Add Stream</button>
+              <button className="btn btn-primary btn-sm" onClick={() => { setStreamForm({ name: 'Form 1 Green', grade: 1, color: 'Green' }); setIsCustomColor(false); setCustomColorVal(''); setActiveStreamModal(true); }}>➕ Add Stream</button>
             </div>
 
             <div className="streams-grid">
@@ -1467,18 +1469,50 @@ export default function App() {
                     <label>Stream Color Accent</label>
                     <select 
                       className="form-control"
-                      value={streamForm.color}
+                      value={isCustomColor ? 'Custom' : streamForm.color}
                       onChange={(e) => {
-                        const col = e.target.value;
-                        setStreamForm({ ...streamForm, color: col, name: `Form ${streamForm.grade} ${col}` });
+                        const val = e.target.value;
+                        if (val === 'Custom') {
+                          setIsCustomColor(true);
+                          const col = customColorVal || 'Red';
+                          setStreamForm({ ...streamForm, color: col, name: `Form ${streamForm.grade} ${col}` });
+                        } else {
+                          setIsCustomColor(false);
+                          setStreamForm({ ...streamForm, color: val, name: `Form ${streamForm.grade} ${val}` });
+                        }
                       }}
                     >
                       <option value="Green">Green</option>
                       <option value="Yellow">Yellow</option>
                       <option value="Orange">Orange</option>
                       <option value="Blue">Blue</option>
+                      <option value="Red">Red</option>
+                      <option value="Purple">Purple</option>
+                      <option value="Teal">Teal</option>
+                      <option value="Pink">Pink</option>
+                      <option value="Gold">Gold</option>
+                      <option value="Custom">Custom Color...</option>
                     </select>
                   </div>
+
+                  {isCustomColor && (
+                    <div className="form-group">
+                      <label>Enter Custom Color Name</label>
+                      <input 
+                        type="text" 
+                        className="form-control" 
+                        placeholder="e.g. Red, Silver, Gold..."
+                        value={customColorVal}
+                        onChange={(e) => {
+                          const col = e.target.value;
+                          const capitalizedCol = col ? col.charAt(0).toUpperCase() + col.slice(1) : '';
+                          setCustomColorVal(col);
+                          setStreamForm({ ...streamForm, color: capitalizedCol || 'Custom', name: `Form ${streamForm.grade} ${capitalizedCol || 'Custom'}` });
+                        }}
+                        required
+                      />
+                    </div>
+                  )}
 
                   <div className="form-group">
                     <label>Computed Stream Name</label>

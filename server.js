@@ -106,9 +106,8 @@ app.post('/api/streams', async (req, res) => {
     return res.status(400).json({ error: 'Grade must be between 1 and 4' });
   }
 
-  const validColors = ['Green', 'Yellow', 'Orange', 'Blue'];
-  if (!validColors.includes(color)) {
-    return res.status(400).json({ error: 'Color must be Green, Yellow, Orange, or Blue' });
+  if (typeof color !== 'string' || color.trim() === '') {
+    return res.status(400).json({ error: 'Color is required and must be a string' });
   }
 
   try {
