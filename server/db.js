@@ -8,8 +8,14 @@ const __dirname = path.dirname(__filename);
 
 const isProduction = process.env.NODE_ENV === 'production';
 
+if (!process.env.DATABASE_URL) {
+  console.warn('⚠️ WARNING: DATABASE_URL environment variable is not defined. Falling back to local PostgreSQL database connection settings...');
+} else {
+  console.log('ℹ️ DATABASE_URL is defined. Initializing database pool with the provided connection string...');
+}
+
 const pool = new pg.Pool({
-  connectionString: process.env.DATABASE_URL,
+  connectionString: process.env.DATABASE_URL || undefined,
   host: process.env.DATABASE_URL ? undefined : (process.env.DB_HOST || 'localhost'),
   port: process.env.DATABASE_URL ? undefined : parseInt(process.env.DB_PORT || '5433', 10),
   user: process.env.DATABASE_URL ? undefined : (process.env.DB_USER || 'postgres'),
@@ -51,7 +57,12 @@ export async function initDb() {
       console.log('Database already initialized.');
     }
   } catch (err) {
-    console.error('Error initializing database:', err);
+    console.error('❌ Error initializing database:', err);
+    if (!process.env.DATABASE_URL) {
+      console.error('💡 TROUBLESHOOTING: DATABASE_URL is not set. In hosting environments like Render, you MUST configure the "DATABASE_URL" environment variable in your Web Service settings (under Environment or Advanced) using your PostgreSQL connection string.');
+    } else {
+      console.error('💡 TROUBLESHOOTING: DATABASE_URL is set, but the connection was refused or failed. Please verify that your PostgreSQL service is running, accessible, and that the credentials/port in the connection string are correct.');
+    }
     throw err;
   }
 }
