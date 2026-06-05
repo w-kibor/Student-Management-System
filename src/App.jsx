@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react';
 import ChartComponent from './components/ChartComponent';
 
+const API_BASE = import.meta.env.VITE_API_URL || '';
+const apiFetch = (url, options) => window.fetch(url.startsWith('/api') ? `${API_BASE}${url}` : url, options);
+
 export default function App() {
   // Navigation & UI States
   const [currentView, setCurrentView] = useState('dashboard');
@@ -68,7 +71,7 @@ export default function App() {
   // ==========================================
   const fetchStreams = async () => {
     try {
-      const res = await fetch('/api/streams');
+      const res = await apiFetch('/api/streams');
       const data = await res.json();
       setStreams(data);
     } catch (err) {
@@ -78,7 +81,7 @@ export default function App() {
 
   const fetchStudents = async () => {
     try {
-      const res = await fetch('/api/students');
+      const res = await apiFetch('/api/students');
       const data = await res.json();
       setStudents(data);
     } catch (err) {
@@ -88,7 +91,7 @@ export default function App() {
 
   const fetchSubjects = async () => {
     try {
-      const res = await fetch('/api/subjects');
+      const res = await apiFetch('/api/subjects');
       const data = await res.json();
       setSubjects(data);
     } catch (err) {
@@ -98,7 +101,7 @@ export default function App() {
 
   const fetchGradingScales = async () => {
     try {
-      const res = await fetch('/api/settings/grades');
+      const res = await apiFetch('/api/settings/grades');
       const data = await res.json();
       setGradingScales(data);
       setGradesConfig(data);
@@ -109,7 +112,7 @@ export default function App() {
 
   const fetchSystemLimits = async () => {
     try {
-      const res = await fetch('/api/settings/configs');
+      const res = await apiFetch('/api/settings/configs');
       const data = await res.json();
       setLimits(data);
       setConfigForm(data);
@@ -155,7 +158,7 @@ export default function App() {
     const method = isEdit ? 'PUT' : 'POST';
 
     try {
-      const res = await fetch(url, {
+      const res = await apiFetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(studentForm)
@@ -174,7 +177,7 @@ export default function App() {
   const deleteStudent = async (id) => {
     if (!confirm('Are you sure you want to delete this student? All score records will be lost.')) return;
     try {
-      const res = await fetch(`/api/students/${id}`, { method: 'DELETE' });
+      const res = await apiFetch(`/api/students/${id}`, { method: 'DELETE' });
       if (!res.ok) {
         const data = await res.json();
         throw new Error(data.error || 'Failed to delete');
@@ -206,7 +209,7 @@ export default function App() {
 
   const viewStudentDetails = async (id) => {
     try {
-      const res = await fetch(`/api/students/${id}`);
+      const res = await apiFetch(`/api/students/${id}`);
       if (!res.ok) throw new Error('Student not found');
       const data = await res.json();
       
@@ -233,7 +236,7 @@ export default function App() {
     const method = isEdit ? 'PUT' : 'POST';
 
     try {
-      const res = await fetch(url, {
+      const res = await apiFetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(subjectForm)
@@ -252,7 +255,7 @@ export default function App() {
   const deleteSubject = async (id) => {
     if (!confirm('Are you sure you want to delete this subject? It will be removed from all class streams and scoring databases.')) return;
     try {
-      const res = await fetch(`/api/subjects/${id}`, { method: 'DELETE' });
+      const res = await apiFetch(`/api/subjects/${id}`, { method: 'DELETE' });
       if (!res.ok) {
         const data = await res.json();
         throw new Error(data.error || 'Failed to delete');
@@ -278,7 +281,7 @@ export default function App() {
   const handleStreamSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch('/api/streams', {
+      const res = await apiFetch('/api/streams', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(streamForm)
@@ -295,7 +298,7 @@ export default function App() {
 
   const viewStreamDetails = async (id) => {
     try {
-      const res = await fetch(`/api/streams/${id}`);
+      const res = await apiFetch(`/api/streams/${id}`);
       if (!res.ok) throw new Error('Stream details not found');
       const data = await res.json();
       setSelectedStream(data);
@@ -308,7 +311,7 @@ export default function App() {
   const handleAssignSubjects = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch(`/api/streams/${selectedStream.id}/subjects`, {
+      const res = await apiFetch(`/api/streams/${selectedStream.id}/subjects`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ subject_ids: assignSubjectsState })
@@ -328,7 +331,7 @@ export default function App() {
     if (!scoreStreamId || !scoreSubjectId) return;
     setLoading(true);
     try {
-      const res = await fetch(`/api/scores/stream/${scoreStreamId}/subject/${scoreSubjectId}`);
+      const res = await apiFetch(`/api/scores/stream/${scoreStreamId}/subject/${scoreSubjectId}`);
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to load scorecard grid');
       setScoresSheet(data.scores);
@@ -372,7 +375,7 @@ export default function App() {
     }
 
     try {
-      const res = await fetch('/api/scores/bulk', {
+      const res = await apiFetch('/api/scores/bulk', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -396,7 +399,7 @@ export default function App() {
     if (!reportStreamId) return;
     setLoading(true);
     try {
-      const res = await fetch(`/api/reports/stream/${reportStreamId}/rankings`);
+      const res = await apiFetch(`/api/reports/stream/${reportStreamId}/rankings`);
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to calculate rankings');
       setReportRankings(data.students);
@@ -415,7 +418,7 @@ export default function App() {
   const handleConfigSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch('/api/settings/configs', {
+      const res = await apiFetch('/api/settings/configs', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(configForm)
@@ -432,7 +435,7 @@ export default function App() {
   const handleGradesSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch('/api/settings/grades', {
+      const res = await apiFetch('/api/settings/grades', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ scales: gradesConfig })
@@ -978,7 +981,7 @@ export default function App() {
                 </button>
                 {reportRankings.length > 0 && (
                   <a 
-                    href={`/api/reports/stream/${reportStreamId}/pdf`}
+                    href={`${API_BASE}/api/reports/stream/${reportStreamId}/pdf`}
                     target="_blank" 
                     className="btn btn-secondary"
                     style={{ height: '42px', textDecoration: 'none' }}
@@ -1036,7 +1039,7 @@ export default function App() {
                             </td>
                             <td style={{ textAlign: 'right' }}>
                               <a 
-                                href={`/api/reports/student/${student.id}/pdf`}
+                                href={`${API_BASE}/api/reports/student/${student.id}/pdf`}
                                 target="_blank"
                                 className="btn btn-secondary btn-sm"
                                 style={{ textDecoration: 'none' }}
@@ -1291,7 +1294,7 @@ export default function App() {
                     
                     <div style={{ marginTop: '15px', display: 'flex', justifyContent: 'flex-end' }}>
                       <a 
-                        href={`/api/reports/student/${selectedStudent.id}/pdf`}
+                        href={`${API_BASE}/api/reports/student/${selectedStudent.id}/pdf`}
                         target="_blank"
                         className="btn btn-primary btn-sm"
                         style={{ textDecoration: 'none' }}

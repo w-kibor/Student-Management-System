@@ -4,6 +4,17 @@ import pool, { query, initDb } from '../db.js';
 
 test('database integration - initialization and seed verification', async () => {
   try {
+    // Force clean drop of tables for integration test environment
+    await query(`
+      DROP TABLE IF EXISTS scores CASCADE;
+      DROP TABLE IF EXISTS class_stream_subjects CASCADE;
+      DROP TABLE IF EXISTS subjects CASCADE;
+      DROP TABLE IF EXISTS students CASCADE;
+      DROP TABLE IF EXISTS class_streams CASCADE;
+      DROP TABLE IF EXISTS grading_scales CASCADE;
+      DROP TABLE IF EXISTS system_settings CASCADE;
+    `);
+
     // 1. Run tables initialization and seed defaults
     await initDb();
 

@@ -6,12 +6,16 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+const isProduction = process.env.NODE_ENV === 'production';
+
 const pool = new pg.Pool({
-  host: process.env.DB_HOST || 'localhost',
-  port: parseInt(process.env.DB_PORT || '5433', 10),
-  user: process.env.DB_USER || 'postgres',
-  password: process.env.DB_PASSWORD || 'password123',
-  database: process.env.DB_DATABASE || 'ikonex_academy',
+  connectionString: process.env.DATABASE_URL,
+  host: process.env.DATABASE_URL ? undefined : (process.env.DB_HOST || 'localhost'),
+  port: process.env.DATABASE_URL ? undefined : parseInt(process.env.DB_PORT || '5433', 10),
+  user: process.env.DATABASE_URL ? undefined : (process.env.DB_USER || 'postgres'),
+  password: process.env.DATABASE_URL ? undefined : (process.env.DB_PASSWORD || 'password123'),
+  database: process.env.DATABASE_URL ? undefined : (process.env.DB_DATABASE || 'ikonex_academy'),
+  ssl: isProduction ? { rejectUnauthorized: false } : false
 });
 
 // Helper for query execution
